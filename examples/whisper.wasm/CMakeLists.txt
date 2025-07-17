@@ -1,28 +1,23 @@
 cmake_minimum_required(VERSION 3.13)
 project(whisper-wasm)
 
-# ✅ Add whisper.cpp source and headers
-include_directories(../../..)
+#
+# Add whisper.cpp file (adjust path if needed)
+#
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../..)
+
+#
+# main (WASM build target)
+#
+set(TARGET main)
 
 add_executable(${TARGET}
     emscripten.cpp
     ../../../whisper.cpp
 )
 
-#
-# libmain (WASM build target)
-#
-set(TARGET libmain)
-
-add_executable(${TARGET}
-    emscripten.cpp
-)
-
-# Commented out if not present in repo
-# include(DefaultTargetOptions)
-
 target_link_libraries(${TARGET} PRIVATE
-    whisper
+    # add more if needed
 )
 
 unset(EXTRA_FLAGS)
@@ -34,7 +29,7 @@ if (WHISPER_WASM_SINGLE_FILE)
     add_custom_command(
         TARGET ${TARGET} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_BINARY_DIR}/bin/libmain.js
+        ${CMAKE_BINARY_DIR}/bin/main.js
         ${CMAKE_CURRENT_BINARY_DIR}/whisper.wasm/main.js
     )
 endif()
@@ -47,24 +42,22 @@ set_target_properties(${TARGET} PROPERTIES LINK_FLAGS " \
     -s MAXIMUM_MEMORY=2000MB \
     -s ALLOW_MEMORY_GROWTH=1 \
     -s FORCE_FILESYSTEM=1 \
-    -s EXPORTED_RUNTIME_METHODS=\"['print', 'printErr', 'ccall', 'cwrap', 'HEAPU8']\" \
+    -s EXPORTED_RUNTIME_METHODS=['print','printErr','ccall','cwrap','HEAPU8'] \
     ${EXTRA_FLAGS} \
 ")
 
 #
-# whisper.wasm static files
+# whisper.wasm static files (index + helpers.js)
 #
-set(TARGET whisper.wasm)
-
-# ✅ Use build output directory (not system root!)
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${TARGET})
+set(STATIC_DIR ${CMAKE_CURRENT_BINARY_DIR}/whisper.wasm)
+file(MAKE_DIRECTORY ${STATIC_DIR})
 
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/index-tmpl.html
-    ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}/index.html @ONLY
+    ${STATIC_DIR}/index.html @ONLY
 )
 
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/../helpers.js
-    ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}/helpers.js @ONLY
+    ${STATIC_DIR}/helpers.js @ONLY
 )
