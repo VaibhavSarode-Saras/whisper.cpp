@@ -13,29 +13,32 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install emsdk
+      - name: Install Emscripten
         run: |
           git clone https://github.com/emscripten-core/emsdk.git
           cd emsdk
           ./emsdk install latest
           ./emsdk activate latest
-          echo "EMSDK=$PWD/emsdk" >> $GITHUB_ENV
-          echo "source $PWD/emsdk/emsdk_env.sh" >> $GITHUB_ENV
+          echo "source $(pwd)/emsdk_env.sh" >> $GITHUB_ENV
+        shell: bash
 
-      - name: Set up emsdk environment
+      - name: Source Emscripten environment
+        run: source emsdk/emsdk_env.sh
+        shell: bash
+
+      - name: Install system dependencies
         run: |
-          source emsdk/emsdk_env.sh
-          echo "$EMSDK/upstream/emscripten" >> $GITHUB_PATH
+          sudo apt-get update
+          sudo apt-get install -y cmake build-essential wget
 
-      - name: Download whisper model
+      - name: Download Whisper model (base.en)
         run: |
-          cd models
-          ./download-ggml-model.sh base.en
+          mkdir -p models
+          wget -O models/ggml-base.en.bin https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin
 
-      - name: Build WASM in examples/whisper.wasm
+      - name: Build WASM (inside examples/whisper.wasm)
         working-directory: examples/whisper.wasm
         run: |
-          source ../../emsdk/emsdk_env.sh
           cmake .
           make
 
