@@ -1,3 +1,6 @@
+cmake_minimum_required(VERSION 3.13)
+project(stream-wasm)
+
 #
 # libstream
 #
@@ -6,13 +9,14 @@ set(TARGET libstream)
 
 add_executable(${TARGET}
     emscripten.cpp
-    )
+)
 
-include(DefaultTargetOptions)
+# Commented out because file not present in default clone
+# include(DefaultTargetOptions)
 
 target_link_libraries(${TARGET} PRIVATE
     whisper
-    )
+)
 
 unset(EXTRA_FLAGS)
 
@@ -25,7 +29,7 @@ if (WHISPER_WASM_SINGLE_FILE)
         COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_BINARY_DIR}/bin/libstream.js
         ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/stream.wasm/stream.js
-        )
+    )
 endif()
 
 set_target_properties(${TARGET} PROPERTIES LINK_FLAGS " \
@@ -37,13 +41,16 @@ set_target_properties(${TARGET} PROPERTIES LINK_FLAGS " \
     -s FORCE_FILESYSTEM=1 \
     -s EXPORTED_RUNTIME_METHODS=\"['print', 'printErr', 'ccall', 'cwrap', 'HEAPU8']\" \
     ${EXTRA_FLAGS} \
-    ")
+")
 
 #
 # stream.wasm
 #
 
 set(TARGET stream.wasm)
+
+# Ensure the output directory exists
+file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TARGET})
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/index-tmpl.html  ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TARGET}/index.html @ONLY)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/../helpers.js    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TARGET}/helpers.js @ONLY)
