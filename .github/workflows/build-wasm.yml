@@ -35,9 +35,10 @@ jobs:
           mkdir -p models
           wget -O models/ggml-base.en.bin https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin
 
-      - name: Build WASM (inside examples/whisper.wasm)
+      - name: Build WASM with CMake
         working-directory: examples/whisper.wasm
         run: |
+          cmake .
           make
 
       - name: Upload build artifacts
@@ -45,6 +46,6 @@ jobs:
         with:
           name: whisper-wasm
           path: |
-            examples/whisper.wasm/whisper.wasm
-            examples/whisper.wasm/whisper.js
-            models/ggml-base.en.bin
+            examples/whisper.wasm/build/whisper.wasm/index.html
+            examples/whisper.wasm/build/whisper.wasm/helpers.js
+            examples/whisper.wasm/build/bin/libmain.*
