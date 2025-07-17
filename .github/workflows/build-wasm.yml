@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Clone repo
+      - name: Checkout whisper.cpp
         uses: actions/checkout@v2
 
       - name: Set up Emscripten
@@ -20,11 +20,16 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y cmake build-essential
 
+      - name: Download base.en model
+        run: |
+          mkdir -p models
+          wget -O models/ggml-base.en.bin https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin
+
       - name: Build WASM
         run: |
           make whisper.wasm
 
-      - name: Upload artifact
+      - name: Upload build output
         uses: actions/upload-artifact@v4
         with:
           name: whisper-wasm
