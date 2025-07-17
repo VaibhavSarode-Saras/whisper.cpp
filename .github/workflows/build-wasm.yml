@@ -1,36 +1,50 @@
 name: Build Whisper WASM
 
-on: [push, workflow_dispatch]
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
 
 jobs:
   build-wasm:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout whisper.cpp
-        uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Set up Emscripten
-        uses: mymindstorm/setup-emsdk@v11
-        with:
-          version: latest
-
-      - name: Install dependencies
+      - name: Install emsdk
         run: |
-          sudo apt-get update
-          sudo apt-get install -y cmake build-essential
+          git clone https://github.com/emscripten-core/emsdk.git
+          cd emsdk
+          ./emsdk install latest
+          ./emsdk activate latest
+        shell: bash
 
-      - name: Download base.en model
+      - name: Set up emsdk environment
         run: |
-          mkdir -p models
-          wget -O models/ggml-base.en.bin https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin
+          source emsdk/emsdk_env.sh
+          echo "$PWD/emsdk/upstream/emscripten" >> $GITHUB_PATH
+        shell: bash
 
-      - name: Build WASM
+      - name: Download whisper model (base.en)
         run: |
-          make whisper.wasm
+          cd models
+          ./download-ggml-model.sh base.en
+        shell: bash
 
-      - name: Upload build output
+      - name: Build WASM (whisper.cpp)
+        working-directory: examples/whisper.wasm
+        run: |
+          source ../../emsdk/emsdk_env.sh
+          make
+        shell: bash
+
+      - name: Upload WASM build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: whisper-wasm
-          path: examples/whisper.wasm/
+          path: |
+            examples/whisper.wasm/whisper.wasm
+            examples/whisper.wasm/whisper.js
+            models/ggml-base.en.bin
