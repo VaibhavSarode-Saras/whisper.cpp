@@ -19,28 +19,27 @@ jobs:
           cd emsdk
           ./emsdk install latest
           ./emsdk activate latest
-        shell: bash
+          echo "EMSDK=$PWD/emsdk" >> $GITHUB_ENV
+          echo "source $PWD/emsdk/emsdk_env.sh" >> $GITHUB_ENV
 
       - name: Set up emsdk environment
         run: |
           source emsdk/emsdk_env.sh
-          echo "$PWD/emsdk/upstream/emscripten" >> $GITHUB_PATH
-        shell: bash
+          echo "$EMSDK/upstream/emscripten" >> $GITHUB_PATH
 
-      - name: Download whisper model (base.en)
+      - name: Download whisper model
         run: |
           cd models
           ./download-ggml-model.sh base.en
-        shell: bash
 
-      - name: Build WASM (whisper.cpp)
+      - name: Build WASM in examples/whisper.wasm
         working-directory: examples/whisper.wasm
         run: |
           source ../../emsdk/emsdk_env.sh
+          cmake .
           make
-        shell: bash
 
-      - name: Upload WASM build artifacts
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: whisper-wasm
