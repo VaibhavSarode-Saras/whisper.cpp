@@ -10,7 +10,7 @@ add_executable(${TARGET}
     emscripten.cpp
 )
 
-# Commented out because it's missing in the repo
+# Commented out if not present in repo
 # include(DefaultTargetOptions)
 
 target_link_libraries(${TARGET} PRIVATE
@@ -27,7 +27,7 @@ if (WHISPER_WASM_SINGLE_FILE)
         TARGET ${TARGET} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_BINARY_DIR}/bin/libmain.js
-        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/whisper.wasm/main.js
+        ${CMAKE_CURRENT_BINARY_DIR}/whisper.wasm/main.js
     )
 endif()
 
@@ -48,8 +48,15 @@ set_target_properties(${TARGET} PROPERTIES LINK_FLAGS " \
 #
 set(TARGET whisper.wasm)
 
-# Create directory to avoid configure_file error
-file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TARGET})
+# ✅ Use build output directory (not system root!)
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${TARGET})
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/index-tmpl.html  ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TARGET}/index.html @ONLY)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/../helpers.js    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TARGET}/helpers.js @ONLY)
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/index-tmpl.html
+    ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}/index.html @ONLY
+)
+
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/../helpers.js
+    ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}/helpers.js @ONLY
+)
