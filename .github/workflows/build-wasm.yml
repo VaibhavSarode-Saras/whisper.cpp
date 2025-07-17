@@ -19,7 +19,6 @@ jobs:
           cd emsdk
           ./emsdk install latest
           ./emsdk activate latest
-          echo "source $(pwd)/emsdk_env.sh" >> $GITHUB_ENV
         shell: bash
 
       - name: Source Emscripten environment
@@ -49,4 +48,4 @@ jobs:
           path: |
             examples/whisper.wasm/whisper.wasm
             examples/whisper.wasm/whisper.js
-            models/ggml-base.en.bin
+            ../../models/ggml-base.en.bin
