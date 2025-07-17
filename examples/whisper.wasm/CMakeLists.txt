@@ -2,8 +2,12 @@ cmake_minimum_required(VERSION 3.13)
 project(whisper-wasm)
 
 # ✅ Add whisper.cpp source and headers
-add_subdirectory(../../.. ${CMAKE_BINARY_DIR}/whisper-build)
 include_directories(../../..)
+
+add_executable(${TARGET}
+    emscripten.cpp
+    ../../../whisper.cpp
+)
 
 #
 # libmain (WASM build target)
