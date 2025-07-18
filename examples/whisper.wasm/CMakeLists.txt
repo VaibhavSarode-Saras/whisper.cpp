@@ -17,6 +17,9 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/../../ ${CMAKE_BINARY_DIR}/whisper-build)
 # ✅ 3. Define main WASM target
 set(TARGET libmain)
 
+# ✅ 3.5: Add compile flags for atomics support
+add_compile_options(-pthread -matomics -mbulk-memory)
+
 add_executable(${TARGET}
     emscripten.cpp
 )
@@ -42,6 +45,7 @@ endif()
 
 # ✅ 5. WebAssembly build flags
 set_target_properties(${TARGET} PROPERTIES LINK_FLAGS " \
+    -pthread \
     --bind \
     -s USE_PTHREADS=1 \
     -s PTHREAD_POOL_SIZE_STRICT=0 \
