@@ -15,10 +15,15 @@ jobs:
 
       - name: Install Emscripten
         run: |
-          git clone https://github.com/emscripten-core/emsdk.git
+         git clone https://github.com/emscripten-core/emsdk.git
           cd emsdk
           ./emsdk install latest
           ./emsdk activate latest
+          source ./emsdk_env.sh
+          # Build after activation and sourcing, in the same shell
+          cd ../examples/whisper.wasm
+          cmake -DCMAKE_TOOLCHAIN_FILE=../../emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake .
+          make
         shell: bash
 
       - name: Source Emscripten environment
