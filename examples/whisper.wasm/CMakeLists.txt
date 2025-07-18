@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.13)
 project(whisper-wasm)
 
 # ✅ Include Whisper core
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../.. ${CMAKE_BINARY_DIR}/whisper-core)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../..)
+add_subdirectory(${CMAKE_SOURCE_DIR}/../.. ${CMAKE_BINARY_DIR}/whisper-build)
+include_directories(${CMAKE_SOURCE_DIR}/../..)
 
 # libmain (WASM build target)
 set(TARGET libmain)
