@@ -1,21 +1,21 @@
 cmake_minimum_required(VERSION 3.13)
 project(whisper-wasm)
 
-#
-# ✅ Include Whisper source and header directories
-#
-# Add Whisper core sources to build
-add_subdirectory(${CMAKE_SOURCE_DIR}/../.. ${CMAKE_BINARY_DIR}/whisper-build)
+# ✅ 1. Link to whisper.cpp source
+add_subdirectory(${CMAKE_SOURCE_DIR}/../../src ${CMAKE_BINARY_DIR}/whisper-build)
 
-# Include paths for whisper.h and ggml.h
+# ✅ 2. Include header files for whisper and ggml
 include_directories(
-  ${CMAKE_SOURCE_DIR}/../../include            # for whisper.h (from whisper.cpp/include)
-  ${CMAKE_SOURCE_DIR}/../../ggml/include       # for ggml.h (from whisper.cpp/ggml/include)
+  ${CMAKE_SOURCE_DIR}/../../include         # for whisper.h
+  ${CMAKE_SOURCE_DIR}/../../ggml/include    # for ggml.h
 )
 
-#
-# libmain (WASM build target)
-#
+# ✅ 3. Enable pthread support
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
+
+# ✅ 4. Build main WASM target
 set(TARGET libmain)
 
 add_executable(${TARGET}
@@ -52,9 +52,7 @@ set_target_properties(${TARGET} PROPERTIES LINK_FLAGS " \
     ${EXTRA_FLAGS} \
 ")
 
-#
-# Static assets for whisper.wasm
-#
+# ✅ 5. Static frontend files (index + helper)
 set(TARGET whisper.wasm)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${TARGET})
 
