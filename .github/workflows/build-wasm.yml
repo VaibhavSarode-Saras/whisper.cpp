@@ -40,6 +40,13 @@ jobs:
           emcmake cmake .
           make VERBOSE=1
         shell: bash
+      
+      - name: Prepare whisper.wasm output folder
+        run: |
+            mkdir -p examples/whisper.wasm/build/whisper.wasm
+            cp examples/whisper.wasm/build/index.html examples/whisper.wasm/build/whisper.wasm/
+            cp examples/whisper.wasm/build/helpers.js examples/whisper.wasm/build/whisper.wasm/
+            cp examples/whisper.wasm/build/bin/libmain.* examples/whisper.wasm/build/whisper.wasm/
 
       - name: Upload WASM artifacts
         uses: actions/upload-artifact@v4
