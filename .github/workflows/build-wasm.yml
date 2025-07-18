@@ -13,38 +13,34 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Emscripten
-        run: |
-         git clone https://github.com/emscripten-core/emsdk.git
-          cd emsdk
-          ./emsdk install latest
-          ./emsdk activate latest
-          source ./emsdk_env.sh
-          # Build after activation and sourcing, in the same shell
-          cd ../examples/whisper.wasm
-          cmake -DCMAKE_TOOLCHAIN_FILE=../../emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake .
-          make
-        shell: bash
-
-      - name: Source Emscripten environment
-        run: source emsdk/emsdk_env.sh
-        shell: bash
-
       - name: Install system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential cmake wget
 
+      - name: Install Emscripten and Build WASM
+        run: |
+          # Clone and setup emsdk
+          git clone https://github.com/emscripten-core/emsdk.git
+          cd emsdk
+          ./emsdk install latest
+          ./emsdk activate latest
+
+          # Export Emscripten environment in same shell
+          source ./emsdk_env.sh
+
+          # Go to build folder
+          cd ../examples/whisper.wasm
+
+          # Use Emscripten CMake toolchain
+          cmake -DCMAKE_TOOLCHAIN_FILE=../../emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake .
+          make
+        shell: bash
+
       - name: Download Whisper model (base.en)
         run: |
           mkdir -p models
           wget -O models/ggml-base.en.bin https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin
-
-      - name: Build WASM with CMake
-        working-directory: examples/whisper.wasm
-        run: |
-          cmake .
-          make
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -54,3 +50,4 @@ jobs:
             examples/whisper.wasm/build/whisper.wasm/index.html
             examples/whisper.wasm/build/whisper.wasm/helpers.js
             examples/whisper.wasm/build/bin/libmain.*
+            models/ggml-base.en.bin
