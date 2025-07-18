@@ -46,7 +46,6 @@ jobs:
         with:
           name: whisper-wasm
           path: |
-            examples/whisper.wasm/build/whisper.wasm/index.html
-            examples/whisper.wasm/build/whisper.wasm/helpers.js
-            examples/whisper.wasm/build/bin/libmain.*
-            models/ggml-base.en.bin
+            path: |
+                  examples/whisper.wasm/whisper.wasm/
+                  models/ggml-base.en.bin
