@@ -11,7 +11,8 @@ include_directories(
 )
 
 # ✅ 2. Then add whisper.cpp sources
-add_subdirectory(${CMAKE_SOURCE_DIR}/../../src ${CMAKE_BINARY_DIR}/whisper-build)
+# ✅ Add the whisper.cpp source directly to avoid linking ggml separately
+add_subdirectory(${CMAKE_SOURCE_DIR}/../../ ${CMAKE_BINARY_DIR}/whisper-build)
 
 # ✅ 3. Define main WASM target
 set(TARGET libmain)
