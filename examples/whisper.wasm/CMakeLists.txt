@@ -1,21 +1,16 @@
 cmake_minimum_required(VERSION 3.13)
 project(whisper-wasm)
 
-# ✅ 1. Link to whisper.cpp source
-add_subdirectory(${CMAKE_SOURCE_DIR}/../../src ${CMAKE_BINARY_DIR}/whisper-build)
-
-# ✅ 2. Include header files for whisper and ggml
+# ✅ 1. Include header directories first
 include_directories(
   ${CMAKE_SOURCE_DIR}/../../include         # for whisper.h
   ${CMAKE_SOURCE_DIR}/../../ggml/include    # for ggml.h
 )
 
-# ✅ 3. Enable pthread support
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
+# ✅ 2. Then add whisper.cpp sources
+add_subdirectory(${CMAKE_SOURCE_DIR}/../../src ${CMAKE_BINARY_DIR}/whisper-build)
 
-# ✅ 4. Build main WASM target
+# ✅ 3. Define main WASM target
 set(TARGET libmain)
 
 add_executable(${TARGET}
@@ -28,6 +23,7 @@ target_link_libraries(${TARGET} PRIVATE
 
 unset(EXTRA_FLAGS)
 
+# ✅ 4. Optional: bundle into one JS+WASM file
 if (WHISPER_WASM_SINGLE_FILE)
     set(EXTRA_FLAGS "-s SINGLE_FILE=1")
     message(STATUS "Embedding WASM inside main.js")
@@ -40,6 +36,7 @@ if (WHISPER_WASM_SINGLE_FILE)
     )
 endif()
 
+# ✅ 5. WebAssembly build flags
 set_target_properties(${TARGET} PROPERTIES LINK_FLAGS " \
     --bind \
     -s USE_PTHREADS=1 \
@@ -52,16 +49,16 @@ set_target_properties(${TARGET} PROPERTIES LINK_FLAGS " \
     ${EXTRA_FLAGS} \
 ")
 
-# ✅ 5. Static frontend files (index + helper)
-set(TARGET whisper.wasm)
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${TARGET})
+# ✅ 6. Copy static files (HTML, JS helpers)
+set(STATIC_DIR whisper.wasm)
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${STATIC_DIR})
 
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/index-tmpl.html
-    ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}/index.html @ONLY
+    ${CMAKE_CURRENT_BINARY_DIR}/${STATIC_DIR}/index.html @ONLY
 )
 
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/../helpers.js
-    ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}/helpers.js @ONLY
+    ${CMAKE_CURRENT_BINARY_DIR}/${STATIC_DIR}/helpers.js @ONLY
 )
