@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.13)
 project(whisper-wasm)
 
+# ✅ Define WHISPER_VERSION macro if not defined in whisper.h
+add_definitions(-DWHISPER_VERSION="\"dev-build\"")
+
 # ✅ 1. Include header directories first
 include_directories(
   ${CMAKE_SOURCE_DIR}/../../include         # for whisper.h
