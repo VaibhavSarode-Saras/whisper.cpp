@@ -38,7 +38,7 @@ if (WHISPER_WASM_SINGLE_FILE)
     add_custom_command(
         TARGET ${TARGET} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_BINARY_DIR}/bin/libmain.js
+        ${CMAKE_BINARY_DIR}/libmain.js
         ${CMAKE_CURRENT_BINARY_DIR}/whisper.wasm/main.js
     )
 endif()
